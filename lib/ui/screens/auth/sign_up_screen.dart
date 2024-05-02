@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fvm/firebase_auth/auth_services.dart';
 import 'package:fvm/ui/widgets/text_input_filed.dart';
+import '../home_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -10,8 +13,12 @@ class SignUpScreen extends StatefulWidget {
 
 TextEditingController emailTEController = TextEditingController();
 TextEditingController passTEController = TextEditingController();
+TextEditingController usernameTEController = TextEditingController();
+TextEditingController bioTeController = TextEditingController();
 
- bool _checkboxValue=false;
+FirebaseAuth _auth = FirebaseAuth.instance;
+
+bool _checkboxValue = false;
 
 class _SignUpScreenState extends State<SignUpScreen> {
   @override
@@ -26,11 +33,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
-                height: 150,
+                height: 50,
               ),
               const Text(
                 'Create your account to explore the world',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 26),
+              ),
+              const SizedBox(height: 30),
+              const Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      child: Icon(
+                        Icons.person,
+                      ),
+                    ),
+                    Positioned(
+                        bottom: -5, right: 0, child: Icon(Icons.camera_alt))
+                  ],
+                ),
               ),
               const SizedBox(height: 30),
               const Text(
@@ -40,9 +62,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 10),
               TextInputFiled(
                 hintText: 'First and last name',
-                textEditingController: emailTEController,
+                textEditingController: usernameTEController,
                 textInputType: TextInputType.emailAddress,
-
                 prefix: Icons.person,
               ),
               const SizedBox(height: 10),
@@ -54,7 +75,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 hintText: 'Email Address',
                 textEditingController: emailTEController,
                 textInputType: TextInputType.emailAddress,
-              
                 prefix: Icons.email,
               ),
               const SizedBox(height: 15),
@@ -71,22 +91,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 textEditingController: passTEController,
                 textInputType: TextInputType.visiblePassword,
                 prefix: Icons.lock,
-                suffix:Icons.remove_red_eye,
-
+                suffix: Icons.remove_red_eye,
+              ),
+              const Text(
+                'Password',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextInputFiled(
+                hintText: 'bio',
+                textEditingController: bioTeController,
+                textInputType: TextInputType.emailAddress,
+                prefix: Icons.person,
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
                   Checkbox(
-                    value: _checkboxValue, // Provide a boolean value indicating whether the checkbox is checked or not
+                    value: _checkboxValue,
+                    // Provide a boolean value indicating whether the checkbox is checked or not
                     onChanged: (newValue) {
                       // Provide a function to handle changes in the checkbox state
                       setState(() {
-                        _checkboxValue = newValue ?? false; // Update the checkbox state
+                        _checkboxValue =
+                            newValue ?? false; // Update the checkbox state
                       });
                     },
                   ),
-                  const Text('Save password',
+                  const Text(
+                    'Save password',
                     style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
                   ),
                 ],
@@ -105,10 +141,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       'Sign Up',
                       style: TextStyle(color: Colors.white),
                     ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context){
-                        return const SignUpScreen();
-                      }));
+                    onPressed: () async {
+                      await AuthService().signUpWithEmailPassword(
+                        email: emailTEController.text.trim(),
+                        password: passTEController.text.trim(),
+                        username: usernameTEController.text.trim(),
+                        bio: bioTeController.text.trim(),
+                      );
                     }),
               ),
             ],
@@ -117,6 +156,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
       )),
     );
   }
-
-
 }
